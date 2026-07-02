@@ -1,0 +1,2094 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER QUEST: Взломай меня, если сможешь</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #00ff00;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Matrix background effect */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+            background: linear-gradient(180deg, #000 0%, #001100 100%);
+        }
+
+        .matrix-column {
+            position: absolute;
+            top: -100%;
+            font-size: 14px;
+            animation: matrix-fall linear infinite;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        @keyframes matrix-fall {
+            to { transform: translateY(110vh); }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #00ff00;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(0,255,0,0.1) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #00ff00;
+            text-shadow: 0 0 20px #00ff00, 0 0 40px #00ff00;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #00cc00;
+            opacity: 0.8;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+        }
+
+        .info-block {
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 0.9em;
+            color: #00aa00;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .block-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .block-btn {
+            padding: 20px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .block-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,255,0,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .block-btn:hover::before {
+            left: 100%;
+        }
+
+        .block-btn:hover {
+            background: rgba(0, 255, 0, 0.3);
+            box-shadow: 0 0 20px rgba(0,255,0,0.5);
+            transform: translateY(-2px);
+        }
+
+        .block-btn.active {
+            background: rgba(0, 255, 0, 0.4);
+            box-shadow: 0 0 30px rgba(0,255,0,0.8);
+        }
+
+        .card-container {
+            background: rgba(0, 20, 0, 0.9);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,255,0,0.2);
+            display: none;
+        }
+
+        .card-container.active {
+            display: block;
+            animation: card-appear 0.5s;
+        }
+
+        @keyframes card-appear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #00ff00;
+        }
+
+        .card-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .card-category {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2em;
+            text-transform: uppercase;
+            color: #00ff00;
+        }
+
+        .category-icon {
+            font-size: 1.5em;
+        }
+
+        .scenario-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(0, 255, 0, 0.05);
+            border-left: 4px solid #00ff00;
+        }
+
+        .question {
+            font-size: 1.3em;
+            color: #ffff00;
+            text-shadow: 0 0 10px #ffff00;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .answers {
+            display: grid;
+            gap: 15px;
+        }
+
+        .answer-btn {
+            padding: 15px 20px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            position: relative;
+        }
+
+        .answer-btn:hover {
+            background: rgba(0, 255, 0, 0.3);
+            box-shadow: 0 0 15px rgba(0,255,0,0.5);
+        }
+
+        .answer-btn.correct {
+            background: rgba(0, 255, 0, 0.5);
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0,255,0,0.8);
+        }
+
+        .answer-btn.wrong {
+            background: rgba(255, 0, 0, 0.3);
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        .answer-btn.disabled {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 0, 0.1);
+            border: 2px solid #ffff00;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .explanation.show {
+            display: block;
+            animation: fade-in 0.5s;
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .explanation-title {
+            font-size: 1.3em;
+            color: #ffff00;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .explanation-text {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .rule-box {
+            padding: 15px;
+            background: rgba(0, 255, 0, 0.1);
+            border-left: 4px solid #00ff00;
+            margin-top: 10px;
+        }
+
+        .rule-title {
+            font-weight: bold;
+            color: #00ff00;
+            margin-bottom: 5px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 15px 30px;
+            background: rgba(0, 255, 0, 0.2);
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0, 255, 0, 0.4);
+            box-shadow: 0 0 20px rgba(0,255,0,0.5);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .start-screen, .end-screen {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .start-btn, .restart-btn {
+            margin-top: 30px;
+            padding: 20px 50px;
+            font-size: 1.3em;
+            background: rgba(0, 255, 0, 0.2);
+            border: 3px solid #00ff00;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .start-btn:hover, .restart-btn:hover {
+            background: rgba(0, 255, 0, 0.4);
+            box-shadow: 0 0 30px rgba(0,255,0,0.8);
+            transform: scale(1.05);
+        }
+
+        .glitch {
+            position: relative;
+            animation: glitch 2s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+
+        .circuit-pattern {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background-image: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 20px,
+                rgba(0,255,0,0.1) 20px,
+                rgba(0,255,0,0.1) 22px
+            );
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .card-header { flex-direction: column; gap: 10px; }
+            .block-selector { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg" id="matrixBg"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="glitch">🔐 CYBER QUEST</h1>
+            <div class="subtitle">Взломай меня, если сможешь</div>
+        </div>
+
+        <div id="startScreen" class="start-screen">
+            <h2 style="font-size: 1.8em; margin-bottom: 20px; color: #00ff00;">
+                Проверь свою цифровую грамотность!
+            </h2>
+            <p style="font-size: 1.1em; line-height: 1.6; margin-bottom: 30px;">
+                Тебе предстоит пройти через реальные сценарии кибератак.<br>
+                Сможешь ли ты распознать мошенничество?<br>
+                Выбери блок и начни игру!
+            </p>
+            <button class="start-btn" onclick="showBlocks()">НАЧАТЬ ИГРУ</button>
+        </div>
+
+        <div id="gameScreen" style="display: none;">
+            <div class="game-info">
+                <div class="info-block">
+                    <div class="info-label">БЛОК</div>
+                    <div class="info-value" id="currentBlock">-</div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">ВОПРОС</div>
+                    <div class="info-value"><span id="currentQuestion">0</span>/<span id="totalQuestions">0</span></div>
+                </div>
+                <div class="info-block">
+                    <div class="info-label">БАЛЛЫ</div>
+                    <div class="info-value" id="score">0</div>
+                </div>
+            </div>
+
+            <div id="blockSelector" class="block-selector" style="display: none;">
+                <button class="block-btn" onclick="selectBlock('phishing', this)">
+                    🎁 Фишинг
+                </button>
+                <button class="block-btn" onclick="selectBlock('courier', this)">
+                    📦 Курьер
+                </button>
+                <button class="block-btn" onclick="selectBlock('skins', this)">
+                    🎮 Игровые скины
+                </button>
+                <button class="block-btn" onclick="selectBlock('earnings', this)">
+                    💰 Легкий заработок
+                </button>
+                <button class="block-btn" onclick="selectBlock('blackmail', this)">
+                    ⚠️ Шантаж
+                </button>
+                <button class="block-btn" onclick="selectBlock('passwords', this)">
+                    🔑 Пароли
+                </button>
+                <button class="block-btn" onclick="selectBlock('digital_footprint', this)">
+                    👣 Цифровой след
+                </button>
+                <button class="block-btn" onclick="selectBlock('social_engineering', this)">
+                    🎭 Социнженеры
+                </button>
+            </div>
+
+            <div id="cardsContainer"></div>
+
+            <div class="navigation">
+                <button class="nav-btn" id="prevBtn" onclick="prevQuestion()" disabled>← Назад</button>
+                <button class="nav-btn" onclick="showBlocks()">Выбрать блок</button>
+                <button class="nav-btn" id="nextBtn" onclick="nextQuestion()" disabled>Вперед →</button>
+            </div>
+        </div>
+
+        <div id="endScreen" class="end-screen" style="display: none;">
+            <h2 style="font-size: 2em; margin-bottom: 20px; color: #00ff00;">
+                🎉 ИГРА ЗАВЕРШЕНА!
+            </h2>
+            <div style="font-size: 3em; margin: 30px 0; color: #00ff00; text-shadow: 0 0 20px #00ff00;">
+                Ваш результат: <span id="finalScore">0</span>
+            </div>
+            <div id="resultMessage" style="font-size: 1.2em; margin-bottom: 30px;"></div>
+            <button class="restart-btn" onclick="restartGame()">ИГРАТЬ СНОВА</button>
+        </div>
+    </div>
+
+    <script>
+        // Game data
+        const gameData = {
+            phishing: {
+                name: 'Фишинг',
+                questions: [
+                    {
+                        id: 1,
+                        category: 'ФИШИНГ',
+                        icon: '🎁',
+                        scenario: `ВНИМАНИЕ!
+Благодаря помощи компании Татнефть сегодня школа проводит акцию для учеников: первые 10 человек, перешедшие по ссылке и заполнившие короткую форму, получают беспроводные наушники. Ссылка активна 5 минут!
+
+Требуется ввести: логин от соцсети и пароль для подтверждения личности.`,
+                        question: 'ПЕРЕЙДЁШЬ БЫ ПО ССЫЛКЕ?',
+                        answers: [
+                            'Да, это же от школы! Успею первым!',
+                            'Нет, это подозрительно',
+                            'Сначала проверю у учителей'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО МОШЕННИЧЕСТВО!',
+                        explanationText: `Любой срочный выигрыш, требующий личных данных, — это 99% обман. Ни одна официальная организация не просит пароль.
+
+🚩 Красные флаги:
+• Срочность (5 минут) = давление
+• Подделка под школу/Татнефть
+• Ссылка ведёт на фишинговый сайт
+• Цель — украсть логин и пароль`,
+                        rule: 'ПРАВИЛО: Не вводи пароль на сомнительных сайтах'
+                    },
+                    {
+                        id: 2,
+                        category: 'ФИШИНГ',
+                        icon: '🔐',
+                        scenario: `Сообщение от "Службы поддержки Госуслуг":
+
+"Ваша учётная запись на портале Госуслуг была взломана. Чтобы предотвратить блокировку и кражу ваших данных, срочно пройдите верификацию по ссылке ниже. 
+
+Введите ваш логин и пароль для подтверждения личности. Если не сделаете это в течение 30 минут, доступ будет заблокирован навсегда, а все ваши данные переданы в правоохранительные органы."
+
+Ссылка: https://gosuslugi-verify.ru`,
+                        question: 'ЧТО СДЕЛАЕШЬ?',
+                        answers: [
+                            'Срочно введу данные, чтобы не заблокировали!',
+                            'Проверю официальный сайт Госуслуг',
+                            'Позвоню родителям'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ФИШИНГОВАЯ АТАКА!',
+                        explanationText: `Мошенники создали поддельный сайт с похожим адресом. Настоящий сайт Госуслуг — gosuslugi.ru, а не gosuslugi-verify.ru
+
+🚩 Красные флаги:
+• Срочность и запугивание
+• Несоответствие URL (домен)
+• Требование ввести пароль
+• Угроза блокировки`,
+                        rule: 'ПРАВИЛО: Всегда проверяй адрес сайта в строке браузера'
+                    },
+                    {
+                        id: 3,
+                        category: 'ФИШИНГ',
+                        icon: '📧',
+                        scenario: `Письмо на почту:
+
+"Поздравляем! Вы выиграли iPhone 15 Pro Max в нашей лотерее! 
+
+Для получения приза необходимо:
+1. Перейти по ссылке
+2. Ввести данные банковской карты для оплаты доставки (500 руб.)
+3. Получить код из SMS и ввести его на сайте
+
+Спешите! Предложение действует 24 часа!"
+
+Ссылка: http://apple-prize-win.ru`,
+                        question: 'КАК ПОСТУПИШЬ?',
+                        answers: [
+                            'Ура! Введу карту, 500 рублей не жалко!',
+                            'Это мошенничество, удалю письмо',
+                            'Проверю, есть ли у Apple такие акции'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО КЛАССИЧЕСКИЙ ФИШИНГ!',
+                        explanationText: `Никогда не выигрывал в лотереях, в которых не участвовал? Это мошенники!
+
+🚩 Красные флаги:
+• Слишком хороший приз
+• Требование оплаты "доставки"
+• Запрос данных карты
+• Домен .ru вместо .com
+• Срочность`,
+                        rule: 'ПРАВИЛО: Бесплатный сыр только в мышеловке'
+                    },
+                    {
+                        id: 4,
+                        category: 'ФИШИНГ',
+                        icon: '📱',
+                        scenario: `В школьном чате появляется сообщение от имени директора:
+
+"Уважаемые ученики! Министерство образования требует срочной верификации всех школьников через QR-код. Отсканируйте код ниже и введите СНИЛС, паспортные данные родителей и код из SMS для подтверждения.
+
+Без этого доступ к электронному дневнику будет заблокирован!"
+
+QR-код ведёт на сайт: gov-verification.ru`,
+                        question: 'ОТСКАНИРУЕШЬ QR-КОД?',
+                        answers: [
+                            'Да, раз директор просит!',
+                            'Нет, это подозрительный домен',
+                            'Спрошу у родителей'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ПОДДЕЛКА!',
+                        explanationText: `Мошенники регистрируют похожие домены. Настоящий сайт госуслуг — gosuslugi.ru, а не gov-verification.ru.
+
+🚩 Красные флаги:
+• QR-код в мессенджере — необычный способ связи
+• Поддельный домен (gov-verification вместо gov.ru)
+• Требование СНИЛС и паспортных данных
+• Угроза блокировки дневника`,
+                        rule: 'ПРАВИЛО: Всегда проверяй адрес сайта — мошенники регистрируют похожие домены'
+                    },
+                    {
+                        id: 5,
+                        category: 'ФИШИНГ',
+                        icon: '💬',
+                        scenario: `Сообщение в мессенджере от "одноклассника Максима":
+
+"Привет! Это я, Максим. У меня проблема: телефон сломался, а нужно срочно перевести деньги на карту друга, я потом верну. Скинь 500 рублей на номер +7... И никому не говори, стремно как-то. Пожалуйста!"`,
+                        question: 'ПЕРЕВЕДЁШЬ ДЕНЬГИ?',
+                        answers: [
+                            'Да, друг же просит!',
+                            'Сначала перезвоню Максиму',
+                            'Переведу, но меньшую сумму'
+                        ],
+                        correct: 1,
+                        explanation: 'АККАУНТ ВЗЛОМАН!',
+                        explanationText: `Мошенники взламывают аккаунты и рассылают такие сообщения всем контактам. "Не говори никому" — классический признак обмана.
+
+✅ Как проверить:
+• Позвонить другу по телефону
+• Задать личный вопрос ("как звали нашу первую учительницу?")
+• Не переводить деньги по первому сообщению`,
+                        rule: 'ПРАВИЛО: Всегда перезванивай, если просят деньги — даже если пишет "друг"'
+                    },
+                    {
+                        id: 6,
+                        category: 'ФИШИНГ',
+                        icon: '🗳️',
+                        scenario: `Сообщение в соцсети от знакомой Кати:
+
+"Привет! Слушай, я участвую в конкурсе, проголосуй за меня, пожалуйста! Вот ссылка, там просто нужно залогиниться через свой аккаунт: http://win-prize-now.net
+
+Я буду очень благодарна! Это займёт 1 минуту."`,
+                        question: 'ПРОГОЛОСУЕШЬ?',
+                        answers: [
+                            'Конечно, помогу подруге!',
+                            'Проверю ссылку — домен подозрительный',
+                            'Зайду, но введу только имя'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ФИШИНГОВАЯ ЛОВУШКА!',
+                        explanationText: `Аккаунт Кати взломан. Мошенники используют доверие к друзьям, чтобы заманить жертв на фишинговый сайт.
+
+🚩 Красные флаги:
+• Подозрительный домен (win-prize-now.net)
+• Просьба "залогиниться через аккаунт"
+• Аккаунт друга мог быть взломан
+• Массовая рассылка таких сообщений`,
+                        rule: 'ПРАВИЛО: Никогда не вводи логин/пароль по ссылке от друга — его аккаунт мог быть взломан'
+                    }
+                ]
+            },
+            courier: {
+                name: 'Курьер',
+                questions: [
+                    {
+                        id: 1,
+                        category: 'КУРЬЕР',
+                        icon: '📦',
+                        scenario: `Срочно! Работа для активных!
+
+Заработок от 5000₽ в день.
+Свободный график, удаленно.
+
+Задание простое: забрать посылку у вокзала и положить в тайник по координатам.
+
+Опыт не нужен.
+Обращаться: @work_best2026`,
+                        question: 'СОГЛАСИЛСЯ БЫ?',
+                        answers: [
+                            'Да, легкие деньги!',
+                            'Нет, это подозрительно',
+                            'Спрошу, что в посылке'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ВЕРБОВКА НАРУКОРЬЕРА!',
+                        explanationText: `Тебе предлагают стать курьером для перевозки запрещенных веществ. Даже если ты не знал, что в пакете — это уголовная ответственность!
+
+⚖️ Последствия:
+• Статья 228 УК РФ
+• До 15-20 лет лишения свободы
+• Судимость навсегда
+• Уголовная ответственность с 14 лет`,
+                        rule: 'ПРАВИЛО: Никогда не бери и не переноси чужие пакеты/посылки'
+                    },
+                    {
+                        id: 2,
+                        category: 'КУРЬЕР',
+                        icon: '💼',
+                        scenario: `Диалог с "куратором":
+
+Куратор: Привет! Ты нам подходишь. Задание очень простое – нужно забрать пакет в районе вокзала и положить его в тайник по координатам, которые я скину. За это 5000₽. Никакого риска, ты просто курьер. Никому не говори, это конфиденциально.
+
+Ты: А что в пакете?
+
+Куратор: Не твое дело. Лишние вопросы – и мы найдем другого. Если откажешься сейчас – я знаю, где ты учишься, и солью твои данные в полицию как нашего сообщника. Будешь сидеть. Решай быстрее.`,
+                        question: 'ЧТО ОТВЕТИШЬ?',
+                        answers: [
+                            'Ладно, только один раз...',
+                            'Прекращу общение и расскажу родителям',
+                            'Спрошу больше денег'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ШАНТАЖ И ВЕРБОВКА!',
+                        explanationText: `Тебя запугивают и торопят — это признаки мошенничества. "Куратор" знает, что делает преступление.
+
+🚩 Красные флаги:
+• Запугивание полицией
+• Требование конфиденциальности
+• Торопят с решением
+• Угрозы раскрытия данных`,
+                        rule: 'ПРАВИЛО: Сохрани переписку и немедленно обратись к взрослым/в полицию'
+                    },
+                    {
+                        id: 3,
+                        category: 'КУРЬЕР',
+                        icon: '👨‍👩‍👧',
+                        scenario: `Звонок от "сотрудника полиции":
+
+"Здравствуйте! Ваши родители попали в серьёзную аварию. Они в больнице, им срочно нужна операция. Но есть проблема — нужно срочно внести залог. 
+
+Сейчас к вам подъедет наш курьер. Передайте ему деньги и ценности из дома. Это единственная возможность спасти родителей!
+
+Никому не говорите — иначе дело закроют, и родителей арестуют!"`,
+                        question: 'ПЕРЕДАШЬ ЦЕННОСТИ КУРЬЕРУ?',
+                        answers: [
+                            'Да, надо спасать родителей!',
+                            'Нет, сначала перезвоню родителям',
+                            'Отдам только часть денег'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО МОШЕННИЧЕСТВО!',
+                        explanationText: `Мошенники используют страх за родителей, чтобы заставить подростка передать деньги или ценности курьеру.
+
+🚩 Красные флаги:
+• Давление на эмоции
+• Требование секретности
+• "Курьер" за ценностями
+• Угроза "ареста родителей"
+
+✅ Что делать:
+1. Перезвонить родителям напрямую
+2. Позвонить в полицию по 112
+3. Рассказать любому взрослому`,
+                        rule: 'ПРАВИЛО: Никогда не передавай деньги/вещи курьерам — сначала проверь информацию у родителей'
+                    },
+                    {
+                        id: 4,
+                        category: 'КУРЬЕР',
+                        icon: '🏛️',
+                        scenario: `"Сотрудник Роскомнадзора" по видеосвязи:
+
+"Здравствуйте, это старший инспектор Иванов. На ваш аккаунт зарегистрирована страница с запрещённым контентом. Если вы не проведёте 'обезопасивание имущества' в течение часа, на вас будет заведено уголовное дело.
+
+Покажите через камеру все ценные вещи в доме. Затем передайте их нашему представителю для 'временного хранения' до окончания следствия."`,
+                        question: 'ПОКАЖЕШЬ ЦЕННОСТИ И ПЕРЕДАШЬ ИХ?',
+                        answers: [
+                            'Да, раз это полиция!',
+                            'Нет, это мошенники',
+                            'Покажу, но не отдам'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО МОШЕННИЧЕСКАЯ СХЕМА!',
+                        explanationText: `Настоящие сотрудники полиции НИКОГДА не проводят такие операции по видеосвязи и не забирают ценности "на хранение".
+
+🚩 Красные флаги:
+• Видеозвонок от "следователя"
+• Требование показать ценности
+• Передача вещей "представителю"
+• Срочность (1 час)
+
+⚖️ Настоящие сотрудники:
+• Приходят лично с удостоверением
+• Имеют постановление
+• Не просят переводить деньги`,
+                        rule: 'ПРАВИЛО: Настоящие сотрудники полиции не работают по видеосвязи и не забирают ценности'
+                    },
+                    {
+                        id: 5,
+                        category: 'КУРЬЕР',
+                        icon: '💳',
+                        scenario: `"Друг" пишет в мессенджере:
+
+"Привет! Слушай, одолжи мне свою банковскую карту на пару дней. Мне нужно получать переводы, а моя заблокирована. Я тебе 1000 рублей за это заплачу.
+
+Карта нужна только для перевода, ничего незаконного. Просто переведи деньги, которые придут, на другой номер."`,
+                        question: 'ОДОЛЖИШЬ КАРТУ?',
+                        answers: [
+                            'Да, 1000 рублей — это круто!',
+                            'Нет, это незаконно',
+                            'Дам карту, но не буду переводить'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ВОВЛЕЧЕНИЕ В ПРЕСТУПЛЕНИЕ!',
+                        explanationText: `Через твою карту будут отмывать украденные деньги. Ты станешь соучастником преступления, даже если "не знал".
+
+⚖️ Последствия:
+• Статья 174 УК РФ (отмывание денег)
+• Статья 159 УК РФ (мошенничество)
+• Уголовная ответственность с 14 лет
+• Судимость на всю жизнь`,
+                        rule: 'ПРАВИЛО: Никогда не передавай свою карту и не переводи чужие деньги'
+                    },
+                    {
+                        id: 6,
+                        category: 'КУРЬЕР',
+                        icon: '📲',
+                        scenario: `В объявлении о работе:
+
+"Требуется помощник! Задача: оформить на себя банковскую карту и SIM-карту. Мы будем платить тебе 3000₽ в месяц за то, что карта просто лежит у тебя.
+
+Никаких усилий! Банк одобрит всем. Нужен только паспорт."`,
+                        question: 'ОФОРМИШЬ КАРТУ ДЛЯ НЕЗНАКОМЦЕВ?',
+                        answers: [
+                            'Да, лёгкие деньги!',
+                            'Нет, это дроповодство',
+                            'Оформлю, но не буду пользоваться'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ВЕРБОВКА "ДРОПА"!',
+                        explanationText: `"Дропы" — люди, которые оформляют карты и SIM-карты на себя для мошенников. Через эти карты отмывают украденные деньги.
+
+⚖️ Последствия:
+• Статья 187 УК РФ (незаконный оборот средств платежей)
+• До 6 лет лишения свободы
+• Долги по кредитам, которые возьмут на твоё имя
+• Испорченная кредитная история`,
+                        rule: 'ПРАВИЛО: Никогда не оформляй карты/SIM для других — ты станешь соучастником'
+                    }
+                ]
+            },
+            skins: {
+                name: 'Игровые скины',
+                questions: [
+                    {
+                        id: 1,
+                        category: 'СКИНЫ',
+                        icon: '🎮',
+                        scenario: `Слушай, я нашёл сайт, где раздают легендарные скины в Brawl Stars бесплатно! 
+
+Только нужно ввести свой логин и пароль, чтобы система проверила, что ты не бот.
+
+Вот ссылка: brawlstars-free-skins.ru`,
+                        question: 'ВВЕДЁШЬ БЫ ДАННЫЕ?',
+                        answers: [
+                            'Да, хочу скины!',
+                            'Нет, это фишинг',
+                            'Спрошу у друга, точно ли это он'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО КРАЖА АККАУНТА!',
+                        explanationText: `Официальные раздачи НИКОГДА не требуют пароль. Твой аккаунт украдут!
+
+🚩 Красные флаги:
+• Требование пароля
+• Подозрительный домен .ru
+• Аккаунт друга мог быть взломан
+• "Бесплатно" = ловушка`,
+                        rule: 'ПРАВИЛО: Никогда не вводи логин и пароль на сторонних сайтах'
+                    },
+                    {
+                        id: 2,
+                        category: 'СКИНЫ',
+                        icon: '🎯',
+                        scenario: `В игре пишет "админ":
+
+"Для получения редкого оружия введи логин и пароль на этом сайте (ссылка). 
+
+Акция только сегодня! Успей получить легендарный скин!"
+
+Сайт выглядит как официальный, но адрес: brawlstars-premium-gifts.com`,
+                        question: 'ЧТО СДЕЛАЕШЬ?',
+                        answers: [
+                            'Введу данные, акция же!',
+                            'Проверю официальный сайт Supercell',
+                            'Напишу в поддержку игры'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ПОДДЕЛЬНЫЙ САЙТ!',
+                        explanationText: `Мошенники создали копию официального сайта. Настоящий сайт Brawl Stars — brawlstars.com
+
+🚩 Красные флаги:
+• Другой домен
+• Срочность
+• Требование данных входа
+• Слишком щедрое предложение`,
+                        rule: 'ПРАВИЛО: Всегда переходи на официальные сайты напрямую'
+                    },
+                    {
+                        id: 3,
+                        category: 'СКИНЫ',
+                        icon: '🎁',
+                        scenario: `В Telegram-канале "Brawl Stars Подарки" пост:
+
+"🔥 РОЗЫГРЫШ! 1000 легендарных скинов! 
+
+Чтобы участвовать:
+1. Подпишись на канал
+2. Перешли это сообщение 10 друзьям
+3. Введи свой ID и пароль от аккаунта в боте @BrawlGifts_Bot
+4. Жди результат завтра!"`,
+                        question: 'УЧАСТВУЕШЬ В РОЗЫГРЫШЕ?',
+                        answers: [
+                            'Да, хочу скин!',
+                            'Нет, просят пароль',
+                            'Введу только ID'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО МОШЕННИЧЕСТВО!',
+                        explanationText: `Настоящие розыгрыши никогда не требуют пароль. "Перешли 10 друзьям" — это массовая рассылка.
+
+🚩 Красные флаги:
+• Требование пароля в боте
+• Массовая пересылка
+• Нет официального подтверждения
+• Обещание "1000 скинов"`,
+                        rule: 'ПРАВИЛО: Настоящие розыгрыши не требуют пароль от аккаунта'
+                    },
+                    {
+                        id: 4,
+                        category: 'СКИНЫ',
+                        icon: '💎',
+                        scenario: `"Продавец" в игре пишет:
+
+"Продаю легендарный скин за 300 рублей (в магазине 2000₽)! Переведи мне на карту, и я отправлю код активации.
+
+Только быстро! У меня всего один код, а желающих много. Если не доверяешь — ищи другого продавца."`,
+                        question: 'КУПИШЬ СКИН У НЕЗНАКОМЦА?',
+                        answers: [
+                            'Да, выгодная цена!',
+                            'Нет, это обман',
+                            'Попрошу скин сначала'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО МОШЕННИЧЕСТВО!',
+                        explanationText: `После перевода денег "продавец" исчезнет. Официальные скины продаются только внутри игры.
+
+🚩 Красные флаги:
+• Слишком низкая цена
+• Перевод на карту (не через игру)
+• Давление "быстро"
+• Угроза "ищи другого"`,
+                        rule: 'ПРАВИЛО: Покупай скины только через официальные магазины игр'
+                    },
+                    {
+                        id: 5,
+                        category: 'СКИНЫ',
+                        icon: '🔧',
+                        scenario: `На форуме пост:
+
+"Скачай читы для Brawl Stars — бесконечные гемы и все скины бесплатно! Работает 100%, проверено!
+
+Ссылка на скачивание: brawlhacks-free.exe
+
+Не забудь отключить антивирус, иначе он удалит файл."`,
+                        question: 'СКАЧАЕШЬ "ЧИТЫ"?',
+                        answers: [
+                            'Да, хочу бесплатные гемы!',
+                            'Нет, это вирус',
+                            'Скачаю, но проверю антивирусом'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ВИРУС!',
+                        explanationText: `"Читы" и "хаки" — это вредоносные программы. Они крадут пароли, данные карт и устанавливают шпионское ПО.
+
+🚩 Красные флаги:
+• Просят отключить антивирус
+• .exe файл из неизвестного источника
+• Обещание "бесплатных гемов"
+• "Работает 100%" — ложь`,
+                        rule: 'ПРАВИЛО: Никогда не скачивай "читы" — это вирусы. Официальные читы запрещены в играх'
+                    },
+                    {
+                        id: 6,
+                        category: 'СКИНЫ',
+                        icon: '👥',
+                        scenario: `"Друг" пишет:
+
+"Привет! Я нашёл способ получить все скины в Roblox бесплатно. Нужно просто дать мне доступ к своему аккаунту на 5 минут — я всё настрою через специальный скрипт.
+
+Потом верну аккаунт, и у тебя будут все скины! Честное слово!"`,
+                        question: 'ДАШЬ ДОСТУП К АККАУНТУ?',
+                        answers: [
+                            'Да, друг же обещает!',
+                            'Нет, это кража аккаунта',
+                            'Дам, но изменю потом пароль'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО КРАЖА АККАУНТА!',
+                        explanationText: `Друг либо сам мошенник, либо его аккаунт взломан. После "доступа" ты потеряешь аккаунт навсегда.
+
+🚩 Красные флаги:
+• Передача доступа третьим лицам
+• "Специальный скрипт" — не существует
+• Обещание бесплатных скинов
+• Давление на доверие`,
+                        rule: 'ПРАВИЛО: Никогда не давай доступ к аккаунту — даже друзьям'
+                    }
+                ]
+            },
+            earnings: {
+                name: 'Легкий заработок',
+                questions: [
+                    {
+                        id: 1,
+                        category: 'ЗАРАБОТОК',
+                        icon: '💰',
+                        scenario: `СРОЧНО! Блогер-миллионник ищет помощников!
+
+Задача: ставить лайки и писать комментарии под постами.
+Оплата 3000₽ в день.
+Выход на оплату в первый же день!
+
+Пиши в ЛС: @helper_best2026`,
+                        question: 'ОТКЛИКНЕШЬСЯ?',
+                        answers: [
+                            'Да, это легко!',
+                            'Сначала узнаю подробности',
+                            'Нет, слишком хорошо'
+                        ],
+                        correct: 2,
+                        explanation: 'ЭТО МОШЕННИЧЕСТВО!',
+                        explanationText: `Любая "работа", где просят заплатить вперёд — мошенничество. "Страховка", "обучение", "оформление" — маскировки выманивания денег.
+
+🚩 Красные флаги:
+• Нереальная зарплата
+• Простая работа
+• Срочность
+• Позже попросят "страховку"`,
+                        rule: 'ПРАВИЛО: Если просят заплатить, чтобы начать зарабатывать — это 100% обман'
+                    },
+                    {
+                        id: 2,
+                        category: 'ЗАРАБОТОК',
+                        icon: '📊',
+                        scenario: `"Привет! Вижу, ты активно ведёшь соцсети. 
+
+Хочу предложить тебе заработать — у меня есть инвестиционная стратегия, которая даёт 30% в неделю. 
+
+Вложи 5000₽, через месяц получишь 20 000₽. 
+
+Могу показать скрины своих доходов."`,
+                        question: 'ВЛОЖИШЬ ДЕНЬГИ?',
+                        answers: [
+                            'Да, 30% — это круто!',
+                            'Нет, это пирамида',
+                            'Попрошу больше доказательств'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ФИНАНСОВАЯ ПИРАМИДА!',
+                        explanationText: `Обещание гарантированного высокого дохода — признак финансовой пирамиды. 30% в неделю экономически невозможно в легальных инвестициях.
+
+🚩 Красные флаги:
+• Гарантированный высокий доход
+• Нереальные проценты
+• "Скрины доходов" (легко подделать)
+• Давление`,
+                        rule: 'ПРАВИЛО: Если обещают "лёгкие и быстрые деньги" — это пирамида или мошенничество'
+                    },
+                    {
+                        id: 3,
+                        category: 'ЗАРАБОТОК',
+                        icon: '👍',
+                        scenario: `Объявление в Telegram:
+
+"Заработок на лайках! 50₽ за каждый лайк. В день можно сделать 100 лайков = 5000₽!
+
+Для начала работы нужно оплатить 'страховку' 1500₽ — чтобы ты не слил задания конкурентам. Деньги вернутся с первой зарплатой."`,
+                        question: 'ОПЛАТИШЬ "СТРАХОВКУ"?',
+                        answers: [
+                            'Да, вернут же!',
+                            'Нет, это обман',
+                            'Оплачу, но меньшую сумму'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО МОШЕННИЧЕСТВО!',
+                        explanationText: `Настоящий работодатель НИКОГДА не просит денег у сотрудника. "Страховка" — это просто выманивание денег.
+
+🚩 Красные флаги:
+• Оплата ДО начала работы
+• "Страховка" — выдуманная причина
+• Нереальный заработок (50₽ за лайк)
+• Обещание возврата`,
+                        rule: 'ПРАВИЛО: Настоящий работодатель никогда не просит денег у сотрудника'
+                    },
+                    {
+                        id: 4,
+                        category: 'ЗАРАБОТОК',
+                        icon: '🎓',
+                        scenario: `"Менеджер" пишет:
+
+"Привет! Мы набираем студентов на удалённую работу. Оформление за 1 день!
+
+Нужно:
+1. Заплатить 2000₽ за 'оформление документов'
+2. Пройти 'обучение' за 3000₽
+3. Купить 'рабочую программу' за 1500₽
+
+После этого — стабильный доход от 50 000₽ в месяц!"`,
+                        question: 'ПРОЙДЁШЬ "ОФОРМЛЕНИЕ"?',
+                        answers: [
+                            'Да, хочу стабильный доход!',
+                            'Нет, это мошенничество',
+                            'Оплачу только оформление'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО МОШЕННИЧЕСКАЯ СХЕМА!',
+                        explanationText: `Тебя заставляют платить за всё: "оформление", "обучение", "программу". После оплаты "менеджер" исчезнет.
+
+🚩 Красные флаги:
+• Много платежей ДО работы
+• Нереальная зарплата для студента
+• "Оформление за 1 день"
+• Давление на желание работать`,
+                        rule: 'ПРАВИЛО: Если за работу нужно платить — это мошенничество'
+                    },
+                    {
+                        id: 5,
+                        category: 'ЗАРАБОТОК',
+                        icon: '🎰',
+                        scenario: `Реклама в игре:
+
+"Онлайн-казино для школьников! Играй и выигрывай реальные деньги!
+
+Первый депозит — бонус 100%! Вложи 1000₽ — получи 2000₽ на счёт!
+
+Выигрыш можно вывести на карту. Минимальная ставка — 50₽."`,
+                        question: 'СЫГРАЕШЬ В "КАЗИНО"?',
+                        answers: [
+                            'Да, бонус 100% — выгодно!',
+                            'Нет, это незаконно и опасно',
+                            'Вложу только 100₽'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО НЕЗАКОННО И ОПАСНО!',
+                        explanationText: `Онлайн-казино запрещены для несовершеннолетних. Ты потеряешь все деньги и можешь попасть в зависимость.
+
+⚖️ Последствия:
+• Участие незаконно до 18 лет
+• Игровая зависимость
+• Потеря всех денег
+• Кража данных карты`,
+                        rule: 'ПРАВИЛО: Казино и ставки — это всегда проигрыш. Никогда не играй на деньги'
+                    },
+                    {
+                        id: 6,
+                        category: 'ЗАРАБОТОК',
+                        icon: '📦',
+                        scenario: `"Работодатель" пишет:
+
+"Нужен помощник! Задача: получать посылки на своё имя и пересылать их по указанному адресу. Оплата 500₽ за посылку.
+
+Все документы оформим сами. Никому не рассказывай — это коммерческая тайна."`,
+                        question: 'СОГЛАСИШЬСЯ ПОЛУЧАТЬ ПОСЫЛКИ?',
+                        answers: [
+                            'Да, лёгкие деньги!',
+                            'Нет, это подозрительно',
+                            'Соглашусь, но проверю содержимое'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ВОВЛЕЧЕНИЕ В ПРЕСТУПЛЕНИЕ!',
+                        explanationText: `Через тебя могут пересылать запрещённые вещества, контрафакт или украденные товары. Ты станешь соучастником.
+
+🚩 Красные флаги:
+• Получение посылок на своё имя
+• "Коммерческая тайна"
+• Оплата за простые действия
+• Оформление "за тебя"`,
+                        rule: 'ПРАВИЛО: Никогда не получай и не пересылай чужие посылки на своё имя'
+                    }
+                ]
+            },
+            blackmail: {
+                name: 'Шантаж',
+                questions: [
+                    {
+                        id: 1,
+                        category: 'ШАНТАЖ',
+                        icon: '⚠️',
+                        scenario: `"Куратор": Привет! Хочешь заработать 2000₽? Просто переведи деньги с карты на карту, я скажу куда. Это легально, просто помощь другу.
+
+Ты перевёл...
+
+"Куратор": Ты уже в деле. Я сохранил скриншоты всех твоих переводов. Эти деньги шли на "левые" товары. 
+
+Теперь ты наш. Если не хочешь, чтобы я отправил эти скрины в полицию и твоим родителям – сделаешь еще одно задание. 
+
+Нужно поджечь дверь подъезда. За это заплачу 10 000₽. Откажешься – сядешь за соучастие.`,
+                        question: 'ЧТО СДЕЛАЕШЬ?',
+                        answers: [
+                            'Ладно, только поджог...',
+                            'Прекращу общение и пойду в полицию',
+                            'Переведу ещё, чтобы отстали'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО КЛАССИЧЕСКАЯ ЛОВУШКА!',
+                        explanationText: `Тебя втянули в преступление и теперь шантажируют. Согласие только усугубит положение!
+
+✅ Правильные действия:
+1. Немедленно прекратить общение
+2. Сохранить всю переписку
+3. Обратиться к родителям
+4. Пойти в полицию`,
+                        rule: 'ПРАВИЛО: Никогда не соглашайся на следующее задание — обратись за помощью!'
+                    },
+                    {
+                        id: 2,
+                        category: 'ШАНТАЖ',
+                        icon: '📱',
+                        scenario: `Тебе пишет незнакомец:
+
+"Я взломал твой телефон. У меня есть все твои фото, переписки, контакты. 
+
+Если не переведёшь 10 000₽ на карту, я отправлю всё твоим родителям, друзьям и выложу в интернет. 
+
+У тебя 2 часа. Вот номер карты..."`,
+                        question: 'КАК ПОСТУПИШЬ?',
+                        answers: [
+                            'Переведу деньги, лишь бы не выложили',
+                            'Это блеф, заблокирую и расскажу родителям',
+                            'Напишу в полицию'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО БЛЕФ И ШАНТАЖ!',
+                        explanationText: `Мошенники массово рассылают такие сообщения. Скорее всего, твой телефон НЕ взломан.
+
+✅ Что делать:
+• Не платить НИКОГДА
+• Заблокировать шантажиста
+• Рассказать родителям
+• Если действительно есть переписка — в полицию`,
+                        rule: 'ПРАВИЛО: Никогда не плати шантажистам — они не остановятся'
+                    },
+                    {
+                        id: 3,
+                        category: 'ШАНТАЖ',
+                        icon: '🎭',
+                        scenario: `"Инспектор Роскомнадзора" пишет:
+
+"На ваш аккаунт ВКонтакте зарегистрирована страница с запрещённым контентом. Если вы не пройдёте верификацию в течение часа, на вас будет заведено административное дело.
+
+Чтобы избежать наказания, переведите 5000₽ 'штрафа' на наш счёт. После этого дело закроют."`,
+                        question: 'ПЕРЕВЕДЁШЬ "ШТРАФ"?',
+                        answers: [
+                            'Да, чтобы не было дела!',
+                            'Нет, это мошенники',
+                            'Переведу часть суммы'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО МОШЕННИЧЕСТВО!',
+                        explanationText: `Никакой "инспектор" не пишет в соцсетях. Штрафы не платятся переводами на карту.
+
+🚩 Красные флаги:
+• "Инспектор" пишет в мессенджере
+• Требование срочной оплаты
+• "Штраф" на личную карту
+• Угроза "административного дела"`,
+                        rule: 'ПРАВИЛО: Настоящие госорганы не требуют переводов на карты через мессенджеры'
+                    },
+                    {
+                        id: 4,
+                        category: 'ШАНТАЖ',
+                        icon: '📸',
+                        scenario: `"Бывший друг" пишет:
+
+"Помнишь те фотки, которые ты мне присылал? Я их сохранил. Если не дашь мне 3000₽, выложу их в наш школьный чат и всем родителям.
+
+У тебя час. Потом будет поздно."`,
+                        question: 'ЗАПЛАТИШЬ?',
+                        answers: [
+                            'Да, лишь бы не выложил',
+                            'Нет, расскажу родителям и в полицию',
+                            'Заплачу, но потом заблокирую'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ШАНТАЖ!',
+                        explanationText: `Если заплатишь — будут требовать ещё. Шантажисты никогда не останавливаются.
+
+✅ Правильные действия:
+1. Не платить
+2. Сохранить переписку
+3. Рассказать родителям
+4. Обратиться в полицию (это статья 163 УК РФ)`,
+                        rule: 'ПРАВИЛО: Никогда не плати шантажистам — обратись к взрослым и в полицию'
+                    },
+                    {
+                        id: 5,
+                        category: 'ШАНТАЖ',
+                        icon: '🎮',
+                        scenario: `"Администратор" игрового сервера пишет:
+
+"Мы обнаружили, что ты использовал читы. Твой аккаунт будет заблокирован навсегда, а твой IP передан в полицию.
+
+Чтобы избежать наказания, заплати 2000₽ 'штрафа'. Иначе через час твой аккаунт исчезнет, а родители получат уведомление."`,
+                        question: 'ЗАПЛАТИШЬ "ШТРАФ"?',
+                        answers: [
+                            'Да, не хочу терять аккаунт!',
+                            'Нет, это мошенники',
+                            'Заплачу, но попрошу чек'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО МОШЕННИЧЕСТВО!',
+                        explanationText: `Настоящие администраторы не требуют денег. "Штрафы" за читы не существуют.
+
+🚩 Красные флаги:
+• "Штраф" на личную карту
+• Угроза "передачи IP в полицию"
+• Срочность (1 час)
+• Аккаунт мог быть взломан`,
+                        rule: 'ПРАВИЛО: Настоящие администраторы никогда не требуют денег'
+                    },
+                    {
+                        id: 6,
+                        category: 'ШАНТАЖ',
+                        icon: '👨‍👩‍👧',
+                        scenario: `"Следователь" по телефону:
+
+"Ваш сын задержан за распространение наркотиков. Мы можем закрыть дело, если вы переведёте 50 000₽ 'залога' на наш счёт.
+
+Если не сделаете это в течение часа — его арестуют и посадят на 10 лет. Никому не говорите — это следственная тайна."`,
+                        question: 'ПЕРЕВЕДЁШЬ "ЗАЛОГ"?',
+                        answers: [
+                            'Да, надо спасать сына!',
+                            'Нет, это мошенники',
+                            'Переведу, но меньшую сумму'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО МОШЕННИЧЕСТВО!',
+                        explanationText: `Настоящие следователи не требуют переводов на карту. Залог вносится только через суд.
+
+🚩 Красные флаги:
+• Требование срочного перевода
+• "Залог" на личную карту
+• Запрет рассказывать кому-либо
+• Давление на страх за ребёнка
+
+✅ Что делать:
+1. Перезвонить сыну напрямую
+2. Позвонить в полицию по 112
+3. Не переводить деньги`,
+                        rule: 'ПРАВИЛО: Настоящие следователи не требуют переводов на карту — перезвони ребёнку и в полицию'
+                    }
+                ]
+            },
+            passwords: {
+                name: 'Пароли',
+                questions: [
+                    {
+                        id: 1,
+                        category: 'ПАРОЛИ',
+                        icon: '🔑',
+                        scenario: `Расставь пароли от самого слабого к самому сильному:
+
+A) qwerty12345
+B) солнце-трава-синий-велосипед
+C) Admin123
+D) K7#mP9!zL2
+E) 123456`,
+                        question: 'КАКОЙ ПАРОЛЬ САМЫЙ СИЛЬНЫЙ?',
+                        answers: [
+                            'Admin123 — есть буквы и цифры',
+                            'K7#mP9!zL2 — специальные символы',
+                            'солнце-трава-синий-велосипед — длинный'
+                        ],
+                        correct: 1,
+                        explanation: 'СИЛЬНЫЙ ПАРОЛЬ',
+                        explanationText: `Пароль D (K7#mP9!zL2) самый сильный, потому что:
+• 10 символов
+• Заглавные и строчные буквы
+• Цифры
+• Специальные символы (#, !)
+
+Пароль B тоже хороший — он длинный, но без специальных символов.
+
+❌ Слабые пароли: A, C, E (простые, короткие, словарные)`,
+                        rule: 'ПРАВИЛО: Используй минимум 12 символов: буквы, цифры, спецзнаки'
+                    },
+                    {
+                        id: 2,
+                        category: 'ПАРОЛИ',
+                        icon: '🔐',
+                        scenario: `Ты создал аккаунты:
+• ВКонтакте: пароль "Katya2010"
+• Почта: пароль "Katya2010"  
+• Игра: пароль "Katya2010"
+• Госуслуги: пароль "Katya2010"
+
+Удобно — один пароль везде!`,
+                        question: 'ЭТО ХОРОШАЯ ИДЕЯ?',
+                        answers: [
+                            'Да, удобно запомнить',
+                            'Нет, это опасно',
+                            'Неважно, главное сложный пароль'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО КРИТИЧЕСКАЯ ОШИБКА!',
+                        explanationText: `Если злоумышленники узнают твой пароль на одном сайте (например, через фишинг), они получат доступ ко ВСЕМ твоим аккаунтам!
+
+✅ Правильно:
+• Уникальный пароль для каждого важного аккаунта
+• Используй менеджер паролей
+• Включи двухфакторную аутентификацию`,
+                        rule: 'ПРАВИЛО: Никогда не используй один пароль на разных сайтах!'
+                    },
+                    {
+                        id: 3,
+                        category: 'ПАРОЛИ',
+                        icon: '👥',
+                        scenario: `Лучший друг просит:
+
+"Дай мне свой пароль от ВКонтакте! Я хочу посмотреть, кто тебя лайкает. Честно, никому не скажу! Я же твой лучший друг!"
+
+25% школьников делятся логином и паролем с друзьями.`,
+                        question: 'ДАШЬ ПАРОЛЬ ДРУГУ?',
+                        answers: [
+                            'Да, он же лучший друг!',
+                            'Нет, пароль — это личное',
+                            'Дам, но потом поменяю'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ОШИБКА!',
+                        explanationText: `Даже лучшие друзья могут:
+• Случайно потерять пароль
+• Показать его кому-то ещё
+• Поссориться и использовать против тебя
+• Их аккаунт могут взломать
+
+✅ Правильно:
+• Никогда не давать пароль никому
+• Если друг хочет посмотреть — покажи со своего устройства`,
+                        rule: 'ПРАВИЛО: Никогда не делись паролем — даже с лучшими друзьями'
+                    },
+                    {
+                        id: 4,
+                        category: 'ПАРОЛИ',
+                        icon: '🔄',
+                        scenario: `Ты последний раз менял пароль от почты 2 года назад. От всех остальных аккаунтов — тоже.
+
+"Зачем менять? Всё же работает!"`,
+                        question: 'НУЖНО ЛИ МЕНЯТЬ ПАРОЛИ?',
+                        answers: [
+                            'Нет, работают — и ладно',
+                            'Да, нужно менять регулярно',
+                            'Только если забыл'
+                        ],
+                        correct: 1,
+                        explanation: 'ПАРОЛИ НУЖНО МЕНЯТЬ!',
+                        explanationText: `Пароли нужно менять:
+• Каждые 3-6 месяцев
+• Если есть подозрение на взлом
+• После использования чужого компьютера
+• Если узнал о утечке данных с сайта
+
+⚠️ Почему:
+• Пароли могут утечь в базу данных
+• Мошенники используют старые пароли
+• Длительное использование = больший риск`,
+                        rule: 'ПРАВИЛО: Меняй пароли каждые 3-6 месяцев'
+                    },
+                    {
+                        id: 5,
+                        category: 'ПАРОЛИ',
+                        icon: '❓',
+                        scenario: `При восстановлении пароля сайт спрашивает:
+"Кличка вашего первого питомца?"
+
+Ты отвечаешь: "Барсик" — потому что это правда.
+
+В твоём ВКонтакте есть пост: "Моего первого пса звали Барсик, скучаю 🐕"`,
+                        question: 'БЕЗОПАСНО ЛИ ТАК ДЕЛАТЬ?',
+                        answers: [
+                            'Да, это же секретный вопрос',
+                            'Нет, ответ можно найти в соцсетях',
+                            'Да, если никто не видит'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ОПАСНО!',
+                        explanationText: `Мошенники используют информацию из соцсетей для взлома. "Секретные вопросы" — слабое место.
+
+✅ Правильно:
+• Используй случайные ответы ("Барсик" → "Pizza1985!")
+• Не публикуй личную информацию
+• Не отвечай на секретные вопросы честно`,
+                        rule: 'ПРАВИЛО: Отвечай на секретные вопросы случайно — не используй реальную информацию'
+                    },
+                    {
+                        id: 6,
+                        category: 'ПАРОЛИ',
+                        icon: '📱',
+                        scenario: `Ты ввёл свой пароль от ВКонтакте на компьютере в библиотеке. Забыл выйти из аккаунта и ушёл домой.
+
+"Ничего страшного, библиотека закрывается, компьютер выключат."`,
+                        question: 'ЭТО БЕЗОПАСНО?',
+                        answers: [
+                            'Да, компьютер же выключат',
+                            'Нет, нужно было выйти',
+                            'Неважно, пароль всё равно сложный'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ОШИБКА!',
+                        explanationText: `На чужом компьютере нужно ВСЕГДА выходить из аккаунта:
+• Другие могут получить доступ
+• Браузер может сохранить пароль
+• Вирусы могут украсть данные
+
+✅ Правильно:
+• Всегда нажимать "Выйти"
+• Не сохранять пароли на чужих устройствах
+• Использовать режим "Инкогнито"`,
+                        rule: 'ПРАВИЛО: Всегда выходи из аккаунтов на чужих компьютерах'
+                    }
+                ]
+            },
+            digital_footprint: {
+                name: 'Цифровой след',
+                questions: [
+                    {
+                        id: 1,
+                        category: 'ЦИФРОВОЙ СЛЕД',
+                        icon: '📸',
+                        scenario: `Пост ВКонтакте:
+
+Фото билета на самолёт: "Наконец-то лечу в отпуск! Увидимся через две недели, Москва!"
+
+На фото виден штрих-код и номер бронирования.`,
+                        question: 'ЧТО НЕПРАВИЛЬНО В ЭТОМ ПОСТЕ?',
+                        answers: [
+                            'Ничего, пусть все радуются',
+                            'Штрих-код и номер бронирования видны',
+                            'Не надо писать про отпуск'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ОПАСНО!',
+                        explanationText: `По штрих-коду и номеру бронирования мошенники могут:
+• Отменить твой рейс
+• Украсть личные данные
+• Продать твоё место
+• Узнать точные даты отсутствия дома
+
+🚩 Что скрыть:
+• Штрих-коды
+• Номера документов
+• Точные даты отъезда`,
+                        rule: 'ПРАВИЛО: Никогда не публикуй штрих-коды билетов и документов'
+                    },
+                    {
+                        id: 2,
+                        category: 'ЦИФРОВОЙ СЛЕД',
+                        icon: '🗺️',
+                        scenario: `Пост в Instagram:
+
+Фото нового гаджета: "Купил умную колонку! Теперь настраиваю её прямо из своей комнаты в Химках. Вид из окна просто супер!"
+
+В метаданных фото зашиты GPS-координаты.`,
+                        question: 'КАКУЮ ИНФОРМАЦИЮ МОЖНО УЗНАТЬ?',
+                        answers: [
+                            'Только что он купил колонку',
+                            'Точный адрес и модель устройства',
+                            'Ничего важного'
+                        ],
+                        correct: 1,
+                        explanation: 'МЕТАДАННЫЕ ОПАСНЫ!',
+                        explanationText: `Каждое фото содержит EXIF-данные:
+• GPS-координаты (точный адрес)
+• Дата и время съёмки
+• Модель устройства
+• Настройки камеры
+
+⚠️ Злоумышленник может:
+• Вычислить твой адрес
+• Узнать, когда тебя нет дома
+• Определить твой доход по технике`,
+                        rule: 'ПРАВИЛО: Отключай геолокацию в камере перед публикацией фото'
+                    },
+                    {
+                        id: 3,
+                        category: 'ЦИФРОВОЙ СЛЕД',
+                        icon: '🎯',
+                        scenario: `Челлендж в TikTok:
+
+"10 фактов о себе: я родился в Самаре, учился в школе №15, а мою маму в девичестве звали Иванова. А вы?"
+
+Это популярный челлендж, который набирает миллионы просмотров.`,
+                        question: 'ПОЧЕМУ ЭТО ОПАСНО?',
+                        answers: [
+                            'Это просто весёлый челлендж',
+                            'Это ответы на секретные вопросы',
+                            'Ничего страшного'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ПОМОЩЬ МОШЕННИКАМ!',
+                        explanationText: `"Секретные вопросы" для восстановления паролей:
+• Место рождения
+• Девичья фамилия матери
+• Кличка первого питомца
+• Номер школы
+
+Мошенники используют эту информацию для:
+• Взлома аккаунтов
+• Кражи личных данных
+• Социальной инженерии`,
+                        rule: 'ПРАВИЛО: Никогда не публикуй ответы на секретные вопросы — даже в челленджах'
+                    },
+                    {
+                        id: 4,
+                        category: 'ЦИФРОВОЙ СЛЕД',
+                        icon: '🔐',
+                        scenario: `Пост ВКонтакте:
+
+"Мой верный друг Рекс — единственный, кто знает все мои секреты. Кстати, кличка моей первой собаки — это мой любимый пароль!"`,
+                        question: 'ЧТО НЕПРАВИЛЬНО?',
+                        answers: [
+                            'Ничего, это милый пост',
+                            'Он раскрыл свой пароль',
+                            'Не надо писать про собаку'
+                        ],
+                        correct: 1,
+                        explanation: 'ОН РАСКРЫЛ СЕКРЕТ!',
+                        explanationText: `Он публично сообщил:
+• Кличку первой собаки
+• Что это его пароль
+• Мошенники могут попробовать этот пароль
+
+⚠️ Последствия:
+• Взлом аккаунта
+• Кража личных данных
+• Доступ к почте и соцсетям`,
+                        rule: 'ПРАВИЛО: Никогда не используй личную информацию как пароль'
+                    },
+                    {
+                        id: 5,
+                        category: 'ЦИФРОВОЙ СЛЕД',
+                        icon: '📱',
+                        scenario: `Ты установил приложение "Тест: На кого из звёзд ты похож?" и дал ему доступ к:
+• Списку друзей
+• Геолокации
+• Личным сообщениям
+• Фотографиям
+
+"Ничего страшного, это просто тест."`,
+                        question: 'ЭТО БЕЗОПАСНО?',
+                        answers: [
+                            'Да, это просто тест',
+                            'Нет, это слишком много разрешений',
+                            'Неважно, я удалю приложение'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ОПАСНО!',
+                        explanationText: `Приложение получило доступ к:
+• Всим твоим контактам
+• Твоему местоположению
+• Личным перепискам
+• Фотографиям
+
+⚠️ Даже после удаления:
+• Данные уже собраны
+• Они могут быть проданы
+• Их могут использовать мошенники`,
+                        rule: 'ПРАВИЛО: Не давай приложениям лишние разрешения — проверяй, что они запрашивают'
+                    },
+                    {
+                        id: 6,
+                        category: 'ЦИФРОВОЙ СЛЕД',
+                        icon: '🗑️',
+                        scenario: `Ты удалил пост с личной информацией из ВКонтакте.
+
+"Теперь никто не увидит эту информацию — я же удалил пост!"`,
+                        question: 'ЭТО ТАК?',
+                        answers: [
+                            'Да, пост удалён — информации больше нет',
+                            'Нет, информация может сохраниться',
+                            'Неважно, я больше так не делаю'
+                        ],
+                        correct: 1,
+                        explanation: 'ИНФОРМАЦИЯ СОХРАНЯЕТСЯ!',
+                        explanationText: `Даже после удаления:
+• Скриншоты могут быть сделаны
+• Поисковики кэшируют страницы
+• Архивы интернета сохраняют копии
+• Серверы могут хранить данные
+
+⚠️ Помни:
+• Интернет помнит всё
+• Удалять нужно ДО публикации
+• Думай перед тем, как постить`,
+                        rule: 'ПРАВИЛО: Удаление поста не гарантирует удаление информации — думай перед публикацией'
+                    }
+                ]
+            },
+            social_engineering: {
+                name: 'Социнженеры',
+                questions: [
+                    {
+                        id: 1,
+                        category: 'СОЦИНЖЕНЕРИЯ',
+                        icon: '📞',
+                        scenario: `Звонок от "службы безопасности банка":
+
+"Здравствуйте! Мы обнаружили подозрительную операцию по вашей карте. Чтобы защитить средства, назовите код из SMS, которое сейчас придёт.
+
+Это необходимо для подтверждения, что карту используете вы. Если не сделаете это в течение 2 минут, карта будет заблокирована навсегда."`,
+                        question: 'НАЗОВЁШЬ КОД ИЗ SMS?',
+                        answers: [
+                            'Да, чтобы не заблокировали карту!',
+                            'Нет, это мошенники',
+                            'Назову, но только первые цифры'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО МОШЕННИЧЕСТВО!',
+                        explanationText: `Настоящий банк НИКОГДА не просит код из SMS по телефону. Этот код — подтверждение операции, которую совершают мошенники.
+
+🚩 Красные флаги:
+• Требование кода из SMS
+• Срочность (2 минуты)
+• Угроза блокировки
+• Непрошеный звонок
+
+✅ Что делать:
+1. Положить трубку
+2. Позвонить в банк по номеру на карте
+3. Не сообщать никакие коды`,
+                        rule: 'ПРАВИЛО: Никогда не называй коды из SMS по телефону — даже "банку"'
+                    },
+                    {
+                        id: 2,
+                        category: 'СОЦИНЖЕНЕРИЯ',
+                        icon: '💻',
+                        scenario: `"Техподдержка" пишет:
+
+"Здравствуйте! Мы обнаружили вирус на вашем компьютере. Чтобы удалить его, установите нашу программу удалённого доступа.
+
+Ссылка: remote-help-support.exe
+
+Это необходимо сделать срочно, иначе вирус украдёт все ваши данные!"`,
+                        question: 'УСТАНОВИШЬ ПРОГРАММУ?',
+                        answers: [
+                            'Да, чтобы удалить вирус!',
+                            'Нет, это мошенники',
+                            'Установлю, но проверю антивирусом'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ВИРУС!',
+                        explanationText: `"Программа удалённого доступа" — это вредоносное ПО. Мошенники получат полный контроль над твоим компьютером.
+
+🚩 Красные флаги:
+• Непрошенное предложение помощи
+• .exe файл из неизвестного источника
+• Давление срочностью
+• "Удалённый доступ" к компьютеру`,
+                        rule: 'ПРАВИЛО: Никогда не устанавливай программы по просьбе незнакомцев'
+                    },
+                    {
+                        id: 3,
+                        category: 'СОЦИНЖЕНЕРИЯ',
+                        icon: '🎭',
+                        scenario: `"Друг" пишет в мессенджере с незнакомого номера:
+
+"Привет! Это я, Максим. Потерял телефон, пишу с нового номера. Можешь скинуть мне 1000 рублей до завтра? Старый номер уже не работает."
+
+Номер действительно новый, но стиль общения похож на Максима.`,
+                        question: 'ПЕРЕВЕДЁШЬ ДЕНЬГИ?',
+                        answers: [
+                            'Да, это же Максим!',
+                            'Сначала перезвоню на старый номер',
+                            'Переведу, но меньшую сумму'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО МОШЕННИК!',
+                        explanationText: `Мошенники часто имитируют стиль общения друзей. "Потерял телефон" — классическая отговорка.
+
+✅ Как проверить:
+• Позвонить на старый номер
+• Задать личный вопрос
+• Встретиться лично
+• Попросить голосовое сообщение`,
+                        rule: 'ПРАВИЛО: Всегда проверяй личность — даже если пишет "друг" с нового номера'
+                    },
+                    {
+                        id: 4,
+                        category: 'СОЦИНЖЕНЕРИЯ',
+                        icon: '📧',
+                        scenario: `Письмо от "директора школы":
+
+"Уважаемые ученики! Срочно необходимо обновить данные в электронном дневнике. Перейдите по ссылке и введите СНИЛС, паспортные данные родителей и код из SMS.
+
+Без этого доступ к дневнику будет заблокирован.
+
+С уважением, директор Иванов И.И."`,
+                        question: 'ВВЕДЁШЬ ДАННЫЕ?',
+                        answers: [
+                            'Да, раз директор просит!',
+                            'Нет, проверю у настоящего директора',
+                            'Введу только имя'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО ФИШИНГ!',
+                        explanationText: `Мошенники подделываются под авторитетных лиц. Настоящий директор не просит такие данные по email.
+
+🚩 Красные флаги:
+• Срочность
+• Запрос СНИЛС и паспортов
+• Угроза блокировки
+• Email вместо личного обращения`,
+                        rule: 'ПРАВИЛО: Проверь у настоящего директора — авторитетные лица не просят такие данные по email'
+                    },
+                    {
+                        id: 5,
+                        category: 'СОЦИНЖЕНЕРИЯ',
+                        icon: '🎥',
+                        scenario: `Видеозвонок от "сотрудника полиции":
+
+"Здравствуйте, я следователь Петров. Вы стали свидетелем преступления. Для составления протокола покажите через камеру все ценные вещи в доме и назовите их стоимость.
+
+Это необходимо для вашей безопасности. Если откажетесь — будете подозреваемым."`,
+                        question: 'ПОКАЖЕШЬ ЦЕННОСТИ?',
+                        answers: [
+                            'Да, раз это полиция!',
+                            'Нет, это мошенники',
+                            'Покажу, но не всё'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО МОШЕННИЧЕСТВО!',
+                        explanationText: `Настоящие следователи не проводят опросы по видеосвязи. Они приходят лично с удостоверением и постановлением.
+
+🚩 Красные флаги:
+• Видеозвонок от "следователя"
+• Просьба показать ценности
+• Угроза "подозреваемого"
+• Нет удостоверения и постановления`,
+                        rule: 'ПРАВИЛО: Настоящие следователи не работают по видеосвязи — положи трубку и позвони в полицию'
+                    },
+                    {
+                        id: 6,
+                        category: 'СОЦИНЖЕНЕРИЯ',
+                        icon: '🎁',
+                        scenario: `"Организатор конкурса" пишет:
+
+"Поздравляем! Вы стали победителем нашего конкурса! Для получения приза (iPhone 15) необходимо оплатить 'налог' 3000₽.
+
+Реквизиты для перевода: карта Сбербанка 4276...
+
+Если не оплатите в течение 24 часов, приз перейдёт другому участнику."`,
+                        question: 'ОПЛАТИШЬ "НАЛОГ"?',
+                        answers: [
+                            'Да, чтобы получить iPhone!',
+                            'Нет, это мошенники',
+                            'Оплачу, но меньшую сумму'
+                        ],
+                        correct: 1,
+                        explanation: 'ЭТО МОШЕННИЧЕСТВО!',
+                        explanationText: `Настоящие налоги не платятся переводами на личные карты. "Налог" за приз — классическая схема обмана.
+
+🚩 Красные флаги:
+• "Налог" на личную карту
+• Срочность (24 часа)
+• Ты не участвовал в конкурсе
+• Слишком ценный приз`,
+                        rule: 'ПРАВИЛО: Никогда не плати "налоги" за призы — настоящие призы не требуют оплаты'
+                    }
+                ]
+            }
+        };
+
+        // Game state
+        let currentBlock = null;
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answeredQuestions = {};
+
+        // Create matrix background
+        function createMatrixBg() {
+            const bg = document.getElementById('matrixBg');
+            const chars = '01 アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+            
+            for (let i = 0; i < 50; i++) {
+                const col = document.createElement('div');
+                col.className = 'matrix-column';
+                col.style.left = Math.random() * 100 + '%';
+                col.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                col.style.animationDelay = Math.random() * 10 + 's';
+                
+                let text = '';
+                for (let j = 0; j < 50; j++) {
+                    text += chars[Math.floor(Math.random() * chars.length)] + '<br>';
+                }
+                col.innerHTML = text;
+                bg.appendChild(col);
+            }
+        }
+
+        function showBlocks() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('endScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            document.getElementById('blockSelector').style.display = 'grid';
+            document.getElementById('cardsContainer').innerHTML = '';
+        }
+
+        function selectBlock(blockKey, btnElement) {
+            currentBlock = blockKey;
+            currentQuestionIndex = 0;
+            
+            // Update active button
+            document.querySelectorAll('.block-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            if (btnElement) btnElement.classList.add('active');
+            
+            document.getElementById('currentBlock').textContent = gameData[blockKey].name;
+            document.getElementById('blockSelector').style.display = 'none';
+            
+            renderCards();
+            updateNavigation();
+        }
+
+        function renderCards() {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+            
+            const questions = gameData[currentBlock].questions;
+            document.getElementById('totalQuestions').textContent = questions.length;
+            
+            questions.forEach((q, index) => {
+                const card = createCard(q, index);
+                container.appendChild(card);
+            });
+            
+            updateQuestionCounter();
+        }
+
+        function createCard(question, index) {
+            const card = document.createElement('div');
+            card.className = 'card-container';
+            if (index === currentQuestionIndex) card.classList.add('active');
+            card.id = `card-${index}`;
+            
+            const isAnswered = answeredQuestions[`${currentBlock}-${index}`] !== undefined;
+            const userAnswer = answeredQuestions[`${currentBlock}-${index}`];
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="card-number">${String(index + 1).padStart(2, '0')}</div>
+                    <div class="card-category">
+                        <span class="category-icon">${question.icon}</span>
+                        ${question.category}
+                    </div>
+                </div>
+                <div class="scenario-text">${question.scenario.replace(/\n/g, '<br>')}</div>
+                <div class="question">${question.question}</div>
+                <div class="answers">
+                    ${question.answers.map((answer, ansIndex) => {
+                        let className = 'answer-btn';
+                        if (isAnswered) {
+                            className += ' disabled';
+                            if (ansIndex === question.correct) className += ' correct';
+                            else if (ansIndex === userAnswer && ansIndex !== question.correct) className += ' wrong';
+                        }
+                        return `<button class="${className}" onclick="checkAnswer(${index}, ${ansIndex})" ${isAnswered ? 'disabled' : ''}>${answer}</button>`;
+                    }).join('')}
+                </div>
+                ${isAnswered ? `
+                    <div class="explanation show">
+                        <div class="explanation-title">⭐ ${question.explanation}</div>
+                        <div class="explanation-text">${question.explanationText.replace(/\n/g, '<br>')}</div>
+                        <div class="rule-box">
+                            <div class="rule-title">🛡️ ${question.rule}</div>
+                        </div>
+                    </div>
+                ` : ''}
+                <div class="circuit-pattern"></div>
+            `;
+            
+            return card;
+        }
+
+        function checkAnswer(cardIndex, answerIndex) {
+            const question = gameData[currentBlock].questions[cardIndex];
+            const key = `${currentBlock}-${cardIndex}`;
+            
+            if (answeredQuestions[key] !== undefined) return;
+            
+            answeredQuestions[key] = answerIndex;
+            
+            if (answerIndex === question.correct) {
+                score += 10;
+                document.getElementById('score').textContent = score;
+            }
+            
+            // Re-render card
+            const card = document.getElementById(`card-${cardIndex}`);
+            card.outerHTML = createCard(question, cardIndex).outerHTML;
+            
+            updateNavigation();
+        }
+
+        function nextQuestion() {
+            const questions = gameData[currentBlock].questions;
+            if (currentQuestionIndex < questions.length - 1) {
+                document.getElementById(`card-${currentQuestionIndex}`).classList.remove('active');
+                currentQuestionIndex++;
+                document.getElementById(`card-${currentQuestionIndex}`).classList.add('active');
+                document.getElementById(`card-${currentQuestionIndex}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+                updateQuestionCounter();
+                updateNavigation();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                document.getElementById(`card-${currentQuestionIndex}`).classList.remove('active');
+                currentQuestionIndex--;
+                document.getElementById(`card-${currentQuestionIndex}`).classList.add('active');
+                document.getElementById(`card-${currentQuestionIndex}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+                updateQuestionCounter();
+                updateNavigation();
+            }
+        }
+
+        function updateQuestionCounter() {
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+        }
+
+        function updateNavigation() {
+            const questions = gameData[currentBlock].questions;
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            
+            const isLastAnswered = Object.keys(answeredQuestions).filter(k => k.startsWith(currentBlock)).length === questions.length;
+            
+            if (isLastAnswered && currentQuestionIndex === questions.length - 1) {
+                document.getElementById('nextBtn').textContent = 'Завершить ✓';
+                document.getElementById('nextBtn').onclick = endGame;
+                document.getElementById('nextBtn').disabled = false;
+            } else {
+                document.getElementById('nextBtn').textContent = 'Вперед →';
+                document.getElementById('nextBtn').onclick = nextQuestion;
+                document.getElementById('nextBtn').disabled = currentQuestionIndex === questions.length - 1;
+            }
+        }
+
+        function endGame() {
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('endScreen').style.display = 'block';
+            document.getElementById('finalScore').textContent = score;
+            
+            const totalQuestions = Object.keys(gameData).reduce((sum, key) => sum + gameData[key].questions.length, 0);
+            const percentage = (score / (totalQuestions * 10)) * 100;
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = '🏆 ОТЛИЧНО! Ты настоящий эксперт кибербезопасности!';
+            } else if (percentage >= 70) {
+                message = '👍 ХОРОШО! Ты хорошо разбираешься в цифровой безопасности!';
+            } else if (percentage >= 50) {
+                message = '⚠️ НЕПЛОХО, но есть куда расти. Изучи правила ещё раз!';
+            } else {
+                message = '🚨 ВНИМАНИЕ! Тебе нужно серьёзно изучить тему кибербезопасности!';
+            }
+            
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        function restartGame() {
+            currentBlock = null;
+            currentQuestionIndex = 0;
+            score = 0;
+            answeredQuestions = {};
+            
+            document.getElementById('score').textContent = '0';
+            document.getElementById('endScreen').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'block';
+            document.getElementById('blockSelector').style.display = 'none';
+        }
+
+        // Initialize
+        window.onload = function() {
+            createMatrixBg();
+        };
+    </script>
+</body>
+</html>
